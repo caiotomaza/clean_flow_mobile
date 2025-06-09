@@ -1,19 +1,14 @@
 # Clean Flow - Mobile 📱
 
-_Uma breve descrição do que seu aplicativo faz._
-
-![Banner do Projeto](https://via.placeholder.com/800x200.png?text=Banner+do+Seu+Projeto)
-
 ## 📝 Descrição
 
-Este projeto é um aplicativo Android nativo desenvolvido em **Kotlin** que consome uma API REST para [descreva o objetivo principal, por exemplo, "exibir uma lista de filmes populares"]. A comunicação com a rede é gerenciada pela biblioteca **Retrofit** e a serialização/desserialização de objetos JSON é feita com **Gson**.
+Este projeto é um aplicativo Android nativo desenvolvido em **Kotlin** que consome uma API REST para a aplicação Clean Flow. A comunicação com a rede é gerenciada pela biblioteca **Retrofit** e a serialização/desserialização de objetos JSON é feita com **Gson**.
 
 ## ✨ Funcionalidades
 
-* **[Funcionalidade 1]:** Breve descrição do que essa funcionalidade faz.
-* **[Funcionalidade 2]:** Breve descrição do que essa funcionalidade faz.
-* **[Funcionalidade 3]:** Breve descrição do que essa funcionalidade faz.
-* ...e mais!
+* Registrar entrda de residuos solidos;
+* Registrar saida de residuos solidos;
+* Realizar consulta de entrada, saida e armazenamento.
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -23,10 +18,8 @@ Este projeto foi construído utilizando as seguintes tecnologias e bibliotecas:
 * **[Retrofit 2](https://square.github.io/retrofit/):** Cliente HTTP type-safe para Android e Java.
 * **[Gson](https://github.com/google/gson):** Biblioteca para converter objetos Java (e Kotlin) para sua representação JSON e vice-versa.
 * **[OkHttp 3](https://square.github.io/okhttp/):** Cliente HTTP eficiente, usado por baixo dos panos pelo Retrofit.
-* **[Coroutines](https://kotlinlang.org/docs/coroutines-overview.html):** Para gerenciamento de threads e operações assíncronas de forma simplificada.
 * **[ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel):** Para armazenar e gerenciar dados relacionados à UI de forma consciente do ciclo de vida.
 * **[LiveData](https://developer.android.com/topic/libraries/architecture/livedata):** Para notificar as views sobre mudanças na base de dados de forma observável.
-* **[Koin](https://insert-koin.io/) / [Hilt](https://developer.android.com/training/dependency-injection/hilt-android):** (Opcional) Para injeção de dependência.
 
 ## 🚀 Como Executar o Projeto
 
@@ -34,7 +27,7 @@ Para executar este projeto, você precisará do [Android Studio](https://develop
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+    git clone [https://github.com/caiotomaza/clean_flow_mobile.git](https://github.com/caiotomaza/clean_flow_mobile.git)
     ```
 
 2.  **Abra no Android Studio:**
