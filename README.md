@@ -79,5 +79,14 @@ interface ApiService {
 
     @POST("mobile/saida/store")
     suspend fun registrarSaida(@Body request: RegistroSaidaRequest): Response<ApiResponse>
+
+    @GET("mobile/entradas")
+    suspend fun getConsultasEntradas(): Response<List<ConsultaEntrada>>
+
+    @GET("mobile/saidas")
+    suspend fun getConsultasSaidas(): Response<List<ConsultaSaida>>
+
+    @GET("mobile/armazenamentos")
+    suspend fun getConsultasArmazenamentos(): Response<List<ConsultaArmazenamento>>
 }
 ```
