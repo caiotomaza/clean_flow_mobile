@@ -31,4 +31,18 @@ interface ApiService {
 
     @POST("mobile/saida/store")
     suspend fun registrarSaida(@Body request: RegistroSaidaRequest): Response<ApiResponse>
+
+
+    // --- ADICIONADO PARA A ConsultaResiduosActivity ---
+    // Estes são os novos endpoints que a tela de consulta precisa.
+    // Você precisará criá-los no seu backend (PHP/Laravel).
+
+    @GET("mobile/entradas")
+    suspend fun getConsultasEntradas(): Response<List<ConsultaEntrada>>
+
+    @GET("mobile/saidas")
+    suspend fun getConsultasSaidas(): Response<List<ConsultaSaida>>
+
+    @GET("mobile/armazenamentos")
+    suspend fun getConsultasArmazenamentos(): Response<List<ConsultaArmazenamento>>
 }

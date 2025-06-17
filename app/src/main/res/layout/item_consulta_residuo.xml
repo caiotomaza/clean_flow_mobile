@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Ícone que muda de acordo com o tipo (Entrada, Saída, etc.) -->
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="Ícone do tipo de registro"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_entrada" />
+
+        <!-- Informação Principal (Ex: Nome do material e peso) -->
+        <TextView
+            android:id="@+id/tv_principal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Têxtil (884.71 kg)" />
+
+        <!-- Informação Secundária (Ex: Veículo) -->
+        <TextView
+            android:id="@+id/tv_secundario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/tv_principal"
+            app:layout_constraintStart_toStartOf="@id/tv_principal"
+            app:layout_constraintTop_toBottomOf="@id/tv_principal"
+            tools:text="Veículo: VWM-4088" />
+
+        <!-- Data e Hora -->
+        <TextView
+            android:id="@+id/tv_data"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="@id/tv_principal"
+            app:layout_constraintStart_toStartOf="@id/tv_principal"
+            app:layout_constraintTop_toBottomOf="@id/tv_secundario"
+            tools:text="17/06/2025 17:19" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

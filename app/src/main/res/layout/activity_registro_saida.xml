@@ -97,13 +97,35 @@
                 android:cursorVisible="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/button_salvar"
+        <!-- Container para os botões -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:padding="12dp"
-            android:text="Salvar Registro"/>
+            android:orientation="horizontal"
+            android:layout_marginTop="32dp">
+
+            <!-- Botão Voltar (NOVO) -->
+            <Button
+                android:id="@+id/button_voltar"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:padding="12dp"
+                android:text="Voltar"/>
+
+            <!-- Botão Salvar -->
+            <Button
+                android:id="@+id/button_salvar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:padding="12dp"
+                android:text="Salvar"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

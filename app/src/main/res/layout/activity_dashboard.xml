@@ -48,6 +48,6 @@
     <Button
         android:id="@+id/btnDesconectar" android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Desconectar-se" android:padding="16dp"
+        android:text="Sair" android:padding="16dp"
         android:textSize="18sp"
         android:backgroundTint="@android:color/holo_red_dark"/> </LinearLayout>

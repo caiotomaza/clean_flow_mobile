@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://10.0.2.2/" // **ATENÇÃO: MUDE PARA A URL DO SEU BACKEND!**
+    private const val BASE_URL = "http://31.97.160.19/" // **ATENÇÃO: MUDE PARA A URL DO SEU BACKEND!**
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

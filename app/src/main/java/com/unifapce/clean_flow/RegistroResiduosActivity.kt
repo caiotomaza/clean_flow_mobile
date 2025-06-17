@@ -4,16 +4,13 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.unifapce.clean_flow.data.*
+import com.unifapce.clean_flow.databinding.ActivityRegistroResiduosBinding // Importar a classe de binding gerada
 import com.unifapce.clean_flow.network.RetrofitClient
-import com.unifapce.clean_flow.data.* // Importar todas as classes de dados
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -21,17 +18,17 @@ import java.util.Locale
 
 class RegistroResiduosActivity : AppCompatActivity() {
 
-    private lateinit var spinnerFilial: Spinner
-    private lateinit var spinnerPlacaVeiculo: Spinner
-    private lateinit var etPesoInicial: EditText
-    private lateinit var spinnerMaterial: Spinner
-    private lateinit var spinnerSubtipoMaterial: Spinner
-    private lateinit var spinnerResponsavel: Spinner
-    private lateinit var etIdContainer: EditText
-    private lateinit var etDataArmazenamento: EditText
-    private lateinit var btnConcluir: Button
-    private lateinit var btnCancelar: Button
+    // Usar ViewBinding para acessar as views de forma segura
+    private lateinit var binding: ActivityRegistroResiduosBinding
 
+    // Listas para armazenar os dados dos dropdowns
+    private var filiais: List<Filial> = emptyList()
+    private var veiculos: List<Veiculo> = emptyList()
+    private var residuos: List<Residuo> = emptyList()
+    private var subResiduos: List<SubResiduo> = emptyList()
+    private var usuarios: List<Usuario> = emptyList()
+
+    // Variáveis para armazenar os IDs selecionados
     private var selectedFilialId: Int? = null
     private var selectedPlacaVeiculo: String? = null
     private var selectedMaterialId: Int? = null
@@ -42,139 +39,76 @@ class RegistroResiduosActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_registro_residuos)
+        // Inflar o layout usando ViewBinding
+        binding = ActivityRegistroResiduosBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Inicializar Views
-        spinnerFilial = findViewById(R.id.spinnerFilial)
-        spinnerPlacaVeiculo = findViewById(R.id.spinnerPlacaVeiculo)
-        etPesoInicial = findViewById(R.id.etPesoInicial)
-        spinnerMaterial = findViewById(R.id.spinnerMaterial)
-        spinnerSubtipoMaterial = findViewById(R.id.spinnerSubtipoMaterial)
-        spinnerResponsavel = findViewById(R.id.spinnerResponsavel)
-        etIdContainer = findViewById(R.id.etIdContainer)
-        etDataArmazenamento = findViewById(R.id.etDataArmazenamento)
-        btnConcluir = findViewById(R.id.btnConcluir)
-        btnCancelar = findViewById(R.id.btnCancelar)
+        loadDropdownData()
+        setupClickListeners()
+    }
 
-        // Carregar dados para os Spinners
-        loadSpinnerData()
-
-        // Configurar Date/Time Picker para etDataArmazenamento
-        etDataArmazenamento.setOnClickListener {
+    private fun setupClickListeners() {
+        // Configurar Date/Time Picker
+        binding.editTextData.setOnClickListener {
             showDateTimePicker()
         }
 
-        // Ação do botão Concluir
-        btnConcluir.setOnClickListener {
+        // Ação do botão Salvar
+        binding.buttonSalvar.setOnClickListener {
             enviarRegistro()
         }
 
-        // Ação do botão Cancelar (ex: fechar a Activity)
-        btnCancelar.setOnClickListener {
+        // Ação do botão Voltar
+        binding.buttonVoltar.setOnClickListener {
             finish() // Fecha a Activity
         }
     }
 
-    private fun loadSpinnerData() {
+    private fun loadDropdownData() {
         lifecycleScope.launch {
             try {
                 // Filiais
-                val filiaisResponse = RetrofitClient.apiService.getFiliais()
-                if (filiaisResponse.isSuccessful && filiaisResponse.body() != null) {
-                    val filiais = filiaisResponse.body()!!
-                    val filialNames = filiais.map { it.nome }
-                    val adapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_spinner_item, listOf("Selecione") + filialNames)
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    spinnerFilial.adapter = adapter
-                    spinnerFilial.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            selectedFilialId = if (position > 0) filiais[position - 1].id else null
-                        }
-                        override fun onNothingSelected(parent: android.widget.AdapterView<*>?) { selectedFilialId = null }
-                    }
-                } else {
-                    Log.e("API_CALL", "Erro ao carregar filiais: ${filiaisResponse.code()} - ${filiaisResponse.errorBody()?.string()}")
-                    Toast.makeText(this@RegistroResiduosActivity, "Erro ao carregar filiais.", Toast.LENGTH_SHORT).show()
+                filiais = RetrofitClient.apiService.getFiliais().body() ?: emptyList()
+                val filialAdapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_dropdown_item_1line, filiais.map { it.nome })
+                binding.autocompleteFilial.setAdapter(filialAdapter)
+                binding.autocompleteFilial.setOnItemClickListener { _, _, position, _ ->
+                    selectedFilialId = filiais[position].id
                 }
 
                 // Veículos
-                val veiculosResponse = RetrofitClient.apiService.getVeiculos()
-                if (veiculosResponse.isSuccessful && veiculosResponse.body() != null) {
-                    val veiculos = veiculosResponse.body()!!
-                    val placas = veiculos.map { it.placa }
-                    val adapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_spinner_item, listOf("Selecione") + placas)
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    spinnerPlacaVeiculo.adapter = adapter
-                    spinnerPlacaVeiculo.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            selectedPlacaVeiculo = if (position > 0) placas[position - 1] else null
-                        }
-                        override fun onNothingSelected(parent: android.widget.AdapterView<*>?) { selectedPlacaVeiculo = null }
-                    }
-                } else {
-                    Log.e("API_CALL", "Erro ao carregar veículos: ${veiculosResponse.code()} - ${veiculosResponse.errorBody()?.string()}")
-                    Toast.makeText(this@RegistroResiduosActivity, "Erro ao carregar veículos.", Toast.LENGTH_SHORT).show()
+                veiculos = RetrofitClient.apiService.getVeiculos().body() ?: emptyList()
+                val veiculoAdapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_dropdown_item_1line, veiculos.map { it.placa })
+                binding.autocompleteVeiculo.setAdapter(veiculoAdapter)
+                binding.autocompleteVeiculo.setOnItemClickListener { _, _, position, _ ->
+                    selectedPlacaVeiculo = veiculos[position].placa
                 }
 
-                // Resíduos
-                val residuosResponse = RetrofitClient.apiService.getResiduos()
-                if (residuosResponse.isSuccessful && residuosResponse.body() != null) {
-                    val residuos = residuosResponse.body()!!
-                    val residuoNames = residuos.map { it.nome }
-                    val adapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_spinner_item, listOf("Selecione") + residuoNames)
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    spinnerMaterial.adapter = adapter
-                    spinnerMaterial.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            selectedMaterialId = if (position > 0) residuos[position - 1].id else null
-                        }
-                        override fun onNothingSelected(parent: android.widget.AdapterView<*>?) { selectedMaterialId = null }
-                    }
-                } else {
-                    Log.e("API_CALL", "Erro ao carregar resíduos: ${residuosResponse.code()} - ${residuosResponse.errorBody()?.string()}")
-                    Toast.makeText(this@RegistroResiduosActivity, "Erro ao carregar resíduos.", Toast.LENGTH_SHORT).show()
+                // Resíduos (Materiais)
+                residuos = RetrofitClient.apiService.getResiduos().body() ?: emptyList()
+                val materialAdapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_dropdown_item_1line, residuos.map { it.nome })
+                binding.autocompleteMaterial.setAdapter(materialAdapter)
+                binding.autocompleteMaterial.setOnItemClickListener { _, _, position, _ ->
+                    selectedMaterialId = residuos[position].id
                 }
 
                 // Subtipos de Resíduos
-                val subResiduosResponse = RetrofitClient.apiService.getSubResiduos()
-                if (subResiduosResponse.isSuccessful && subResiduosResponse.body() != null) {
-                    val subResiduos = subResiduosResponse.body()!!
-                    val subResiduoNames = subResiduos.map { it.nome }
-                    val adapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_spinner_item, listOf("Selecione") + subResiduoNames)
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    spinnerSubtipoMaterial.adapter = adapter
-                    spinnerSubtipoMaterial.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            selectedSubtipoMaterialId = if (position > 0) subResiduos[position - 1].id else null
-                        }
-                        override fun onNothingSelected(parent: android.widget.AdapterView<*>?) { selectedSubtipoMaterialId = null }
-                    }
-                } else {
-                    Log.e("API_CALL", "Erro ao carregar subtipos: ${subResiduosResponse.code()} - ${subResiduosResponse.errorBody()?.string()}")
-                    Toast.makeText(this@RegistroResiduosActivity, "Erro ao carregar subtipos.", Toast.LENGTH_SHORT).show()
+                subResiduos = RetrofitClient.apiService.getSubResiduos().body() ?: emptyList()
+                val subResiduoAdapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_dropdown_item_1line, subResiduos.map { it.nome })
+                binding.autocompleteSubtipoMaterial.setAdapter(subResiduoAdapter)
+                binding.autocompleteSubtipoMaterial.setOnItemClickListener { _, _, position, _ ->
+                    selectedSubtipoMaterialId = subResiduos[position].id
                 }
 
                 // Usuários (Responsáveis)
-                val usuariosResponse = RetrofitClient.apiService.getUsuarios()
-                if (usuariosResponse.isSuccessful && usuariosResponse.body() != null) {
-                    val usuarios = usuariosResponse.body()!!
-                    val userNames = usuarios.map { it.name }
-                    val adapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_spinner_item, listOf("Selecione") + userNames)
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    spinnerResponsavel.adapter = adapter
-                    spinnerResponsavel.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            selectedResponsavelId = if (position > 0) usuarios[position - 1].id else null
-                        }
-                        override fun onNothingSelected(parent: android.widget.AdapterView<*>?) { selectedResponsavelId = null }
-                    }
-                } else {
-                    Log.e("API_CALL", "Erro ao carregar usuários: ${usuariosResponse.code()} - ${usuariosResponse.errorBody()?.string()}")
-                    Toast.makeText(this@RegistroResiduosActivity, "Erro ao carregar usuários.", Toast.LENGTH_SHORT).show()
+                usuarios = RetrofitClient.apiService.getUsuarios().body() ?: emptyList()
+                val usuarioAdapter = ArrayAdapter(this@RegistroResiduosActivity, android.R.layout.simple_dropdown_item_1line, usuarios.map { it.name })
+                binding.autocompleteResponsavel.setAdapter(usuarioAdapter)
+                binding.autocompleteResponsavel.setOnItemClickListener { _, _, position, _ ->
+                    selectedResponsavelId = usuarios[position].id
                 }
 
             } catch (e: Exception) {
-                Log.e("API_CALL", "Exceção ao carregar dados dos spinners: ${e.message}", e)
+                Log.e("API_CALL", "Exceção ao carregar dados dos dropdowns: ${e.message}", e)
                 Toast.makeText(this@RegistroResiduosActivity, "Erro de rede ao carregar dados.", Toast.LENGTH_SHORT).show()
             }
         }
@@ -184,68 +118,71 @@ class RegistroResiduosActivity : AppCompatActivity() {
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH)
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
-        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-        val currentMinute = calendar.get(Calendar.MINUTE)
 
-        DatePickerDialog(
-            this,
-            { _, year, monthOfYear, dayOfMonth ->
-                calendar.set(year, monthOfYear, dayOfMonth)
-                TimePickerDialog(
-                    this,
-                    { _, hourOfDay, minute ->
-                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                        calendar.set(Calendar.MINUTE, minute)
-                        updateDateTimeEditText()
-                    },
-                    currentHour,
-                    currentMinute,
-                    true
-                ).show()
-            },
-            currentYear,
-            currentMonth,
-            currentDay
-        ).show()
+        DatePickerDialog(this, { _, year, month, dayOfMonth ->
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, month)
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+            val currentMinute = calendar.get(Calendar.MINUTE)
+
+            TimePickerDialog(this, { _, hourOfDay, minute ->
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                calendar.set(Calendar.MINUTE, minute)
+                updateDateTimeEditText()
+            }, currentHour, currentMinute, true).show()
+
+        }, currentYear, currentMonth, currentDay).show()
     }
 
     private fun updateDateTimeEditText() {
         val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("pt", "BR"))
-        etDataArmazenamento.setText(format.format(calendar.time))
+        binding.editTextData.setText(format.format(calendar.time))
     }
 
     private fun enviarRegistro() {
-        // Validação básica dos campos
+        // Validação usando os componentes do binding
         if (selectedFilialId == null) {
-            Toast.makeText(this, "Selecione uma Filial.", Toast.LENGTH_SHORT).show()
+            binding.layoutFilial.error = "Selecione uma Filial"
             return
-        }
-        if (etPesoInicial.text.isBlank()) {
-            Toast.makeText(this, "Informe o Peso.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (selectedMaterialId == null) {
-            Toast.makeText(this, "Selecione o Tipo de Resíduo.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        // Validações para os outros campos conforme sua necessidade...
-        if (etDataArmazenamento.text.isBlank()) {
-            Toast.makeText(this, "Informe a Data e Hora da Entrada.", Toast.LENGTH_SHORT).show()
-            return
+        } else {
+            binding.layoutFilial.error = null
         }
 
-        // Formatar data e hora para ISO 8601 (YYYY-MM-DDTHH:MM:SS) para o backend
-        val isoDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US) // Use Locale.US para garantir formato sem variação
-        val dataArmazenamentoFormatted = isoDateFormat.format(calendar.time)
+        if (binding.editTextPeso.text.toString().isBlank()) {
+            binding.layoutPeso.error = "Informe o Peso"
+            return
+        } else {
+            binding.layoutPeso.error = null
+        }
+
+        if (selectedMaterialId == null) {
+            binding.layoutMaterial.error = "Selecione o Tipo de Resíduo"
+            return
+        } else {
+            binding.layoutMaterial.error = null
+        }
+
+        if (binding.editTextData.text.toString().isBlank()) {
+            binding.layoutData.error = "Informe a Data e Hora"
+            return
+        } else {
+            binding.layoutData.error = null
+        }
+
+        // Formatar data e hora para o formato esperado pelo backend
+        val backendFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val dataArmazenamentoFormatted = backendFormat.format(calendar.time)
 
         val request = RegistroResiduoRequest(
             idFilial = selectedFilialId,
             placaVeiculo = selectedPlacaVeiculo,
-            pesoInicial = etPesoInicial.text.toString(),
+            pesoInicial = binding.editTextPeso.text.toString(),
             idMaterial = selectedMaterialId,
             idSubtituloMaterial = selectedSubtipoMaterialId,
             idResponsavel = selectedResponsavelId,
-            idContainer = etIdContainer.text.toString().takeIf { it.isNotBlank() }, // Envia null se estiver vazio
+            idContainer = binding.editTextIdContainer.text.toString().takeIf { it.isNotBlank() },
             dataArmazenamento = dataArmazenamentoFormatted
         )
 
@@ -253,25 +190,13 @@ class RegistroResiduosActivity : AppCompatActivity() {
             try {
                 val response = RetrofitClient.apiService.registrarEntrada(request)
 
-                if (response.isSuccessful && response.body() != null) {
-                    val apiResponse = response.body()!!
-                    if (apiResponse.status == "success") {
-                        Toast.makeText(this@RegistroResiduosActivity, apiResponse.message, Toast.LENGTH_LONG).show()
-                        finish() // Opcional: fechar a activity após o sucesso
-                    } else {
-                        // Tratar erros de validação ou outros erros de negócio do backend
-                        val errorMessage = apiResponse.message ?: "Erro desconhecido."
-                        val errorDetails = apiResponse.errors?.entries?.joinToString("\n") { (field, errors) ->
-                            "$field: ${errors.joinToString(", ")}"
-                        }
-                        val fullMessage = if (errorDetails != null) "$errorMessage\n$errorDetails" else errorMessage
-                        Toast.makeText(this@RegistroResiduosActivity, fullMessage, Toast.LENGTH_LONG).show()
-                        Log.e("API_SUBMIT", "Erro no registro: ${apiResponse.status} - $errorMessage\n$errorDetails")
-                    }
+                if (response.isSuccessful) {
+                    Toast.makeText(this@RegistroResiduosActivity, response.body()?.message ?: "Registrado com sucesso!", Toast.LENGTH_LONG).show()
+                    finish()
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    Toast.makeText(this@RegistroResiduosActivity, "Erro na submissão: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
-                    Log.e("API_SUBMIT", "Erro na resposta HTTP: ${response.code()} - $errorBody")
+                    val errorMsg = response.errorBody()?.string() ?: "Erro desconhecido"
+                    Toast.makeText(this@RegistroResiduosActivity, "Erro ao registrar: $errorMsg", Toast.LENGTH_LONG).show()
+                    Log.e("API_SUBMIT", "Erro na resposta HTTP: ${response.code()} - $errorMsg")
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@RegistroResiduosActivity, "Erro de conexão: ${e.message}", Toast.LENGTH_LONG).show()

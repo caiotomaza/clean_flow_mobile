@@ -87,6 +87,11 @@ class RegistroSaidaActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         binding.editTextData.setOnClickListener { showDateTimePicker() }
         binding.buttonSalvar.setOnClickListener { submitForm() }
+
+        // --- LÓGICA DO BOTÃO VOLTAR (NOVO) ---
+        binding.buttonVoltar.setOnClickListener {
+            finish() // Fecha a activity atual e retorna para a anterior
+        }
     }
 
     private fun showDateTimePicker() {
