@@ -73,7 +73,6 @@ interface ApiService {
     @GET("mobile/armazenamento")
     suspend fun getArmazenamentos(): Response<List<Armazenamento>>
 
-    // LINHA CORRIGIDA ABAIXO
     @POST("mobile/entrada/store")
     suspend fun registrarEntrada(@Body request: RegistroResiduoRequest): Response<ApiResponse>
 
